@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anne-core"
+version = "0.1.0"
+description = "ANNE Core — Open Cognitive Architecture. Executable research prototype for heterogeneous AI coordination, cognitive evaluation, and persistent cognitive memory."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Mustafa Gökhan Yılmaz", email = "mgy421977@gmail.com"}
+]
+keywords = ["cognitive-architecture", "ai-orchestration", "heterogeneous-ai", "cognitive-memory", "research-prototype"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "click>=8.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+]
+openai = [
+    "openai>=1.0.0",
+]
+xai = [
+    "openai>=1.0.0",  # xAI uses OpenAI-compatible API
+]
+
+[project.scripts]
+anne-core = "anne_core.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/mgy421977-bit/anne-core"
+Repository = "https://github.com/mgy421977-bit/anne-core"
+Issues = "https://github.com/mgy421977-bit/anne-core/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
