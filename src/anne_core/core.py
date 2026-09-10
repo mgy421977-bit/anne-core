@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
 from anne_core.cognition.evaluator import CognitiveEvaluator
 from anne_core.executive.executive import ExecutiveANNE
@@ -23,6 +22,9 @@ class LoopResult:
     reused: bool
     mitos: MITOSResult | None
     log: list[str]
+    memory_hit: bool = False
+    reuse_score: float = 0.0
+    influenced_synthesis: bool = False
 
 
 class ANNECore:
@@ -43,31 +45,34 @@ class ANNECore:
         self.agency_gate = agency_gate or AgencyGate()
 
     def ask(self, question: str, force_new: bool = False) -> LoopResult:
-        """Run the full cognitive loop for a user question.
+        """Run the cognitive loop, including explicit semantic reuse evaluation."""
+        if not question.strip():
+            raise ValueError("question must not be empty")
 
-        Memory reuse path is taken automatically when a relevant prior
-        structure exists and force_new is False.
-        """
-        log: list[str] = []
-        log.append("ANNE CORE")
-        log.append(f"Question: {question}")
-
+        log: list[str] = ["ANNE CORE", f"Question: {question}"]
         prior: CognitiveStructure | None = None
         reused = False
+        memory_hit = False
+        reuse_score = 0.0
         mitos_result: MITOSResult | None = None
+        influenced_synthesis = False
 
         if not force_new:
-            candidates = self.memory.search(question, limit=3)
+            candidates = self.memory.semantic_search(question, limit=3)
             if candidates:
-                prior = candidates[0]
-                log.append(f"[MEMORY] Relevant cognitive structure found (id={prior.id[:8]}…)")
+                prior, reuse_score = candidates[0]
+                memory_hit = True
+                log.append(
+                    f"[MEMORY] Semantic candidate found (id={prior.id[:8]}…, score={reuse_score:.3f})"
+                )
                 log.append(f"[MEMORY] Concept={prior.concept} conf={prior.confidence:.2f}")
                 log.append("[MITOS] Evaluating reuse")
-                # Simple heuristic: reuse if confidence is decent and concept overlaps
+
+                # Relevance is established by the memory matcher; confidence
+                # remains a separate quality constraint.
                 if prior.confidence >= 0.55:
                     reused = True
-                    log.append("[MEMORY] Reusing previous structure")
-                    # Decide whether additional exploration is still useful
+                    log.append("[MEMORY] Reuse decision: TRUE")
                     need_more = prior.confidence < 0.75
                     log.append(
                         f"[MITOS] Additional exploration required: {'YES' if need_more else 'NO'}"
@@ -76,12 +81,14 @@ class ANNECore:
                         log.append("[MITOS] Performing supplemental exploration")
                         mitos_result = self.mitos.explore(question)
                         structure = self.evaluator.evaluate(mitos_result, prior=prior)
+                        influenced_synthesis = True
                         log.append("[ANNE] Updating cognitive structure")
                     else:
                         structure = prior
+                        influenced_synthesis = True
                         log.append("[ANNE] Cognitive structure reused as-is")
                 else:
-                    log.append("[MEMORY] Prior structure confidence too low — treating as new")
+                    log.append("[MEMORY] Candidate confidence too low — treating as new")
                     prior = None
 
         if not reused:
@@ -91,9 +98,9 @@ class ANNECore:
             for note in mitos_result.exploration_notes:
                 log.append(f"  {note}")
             log.append(f"[MITOS] Selecting providers → {mitos_result.selected_providers}")
-            for r in mitos_result.provider_results:
-                status = "OK" if r.success else f"FAIL ({r.error})"
-                log.append(f"[AI] {r.provider_name} → {status}")
+            for result in mitos_result.provider_results:
+                status = "OK" if result.success else f"FAIL ({result.error})"
+                log.append(f"[AI] {result.provider_name} → {status}")
             log.append("[MITOS] Comparing results")
             log.append(
                 f"  agreements={len(mitos_result.comparison.agreements)} "
@@ -104,10 +111,8 @@ class ANNECore:
             structure = self.evaluator.evaluate(mitos_result)
             log.append("[MEMORY] New cognitive structure created")
 
-        # Persist (always store the latest view)
         self.memory.store(structure)
         log.append(f"[MEMORY] Stored structure id={structure.id[:8]}…")
-
         log.append("[EXECUTIVE] Synthesizing response")
         response = self.executive.synthesise(structure, reused=reused)
 
@@ -118,6 +123,9 @@ class ANNECore:
             reused=reused,
             mitos=mitos_result,
             log=log,
+            memory_hit=memory_hit,
+            reuse_score=reuse_score,
+            influenced_synthesis=influenced_synthesis,
         )
 
     def memory_summary(self) -> str:
