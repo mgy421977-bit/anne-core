@@ -9,20 +9,21 @@ from pathlib import Path
 from typing import Any
 
 from anne_core.memory.models import CognitiveStructure
+from anne_core.memory.semantic import LightweightSemanticMatcher
 
 
 class CognitiveMemory:
-    """Abstract-ish interface for cognitive memory.
+    """Persistent cognitive memory with an explicit retrieval boundary."""
 
-    Current implementation uses SQLite. The class boundary exists so that
-    alternative backends (vector DB, graph store, etc.) can be swapped later
-    without changing the rest of the architecture.
-    """
-
-    def __init__(self, db_path: str | None = None) -> None:
+    def __init__(
+        self,
+        db_path: str | None = None,
+        semantic_threshold: float = 0.42,
+    ) -> None:
         if db_path is None:
             db_path = os.environ.get("ANNE_MEMORY_PATH", "anne_memory.db")
         self.db_path = str(Path(db_path).resolve())
+        self.semantic_matcher = LightweightSemanticMatcher(semantic_threshold)
         self._ensure_schema()
 
     def _connect(self) -> sqlite3.Connection:
@@ -53,18 +54,8 @@ class CognitiveMemory:
                 )
                 """
             )
-            conn.execute(
-                """
-                CREATE INDEX IF NOT EXISTS idx_concept
-                ON cognitive_structures(concept)
-                """
-            )
-            conn.execute(
-                """
-                CREATE INDEX IF NOT EXISTS idx_question
-                ON cognitive_structures(question)
-                """
-            )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_concept ON cognitive_structures(concept)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_question ON cognitive_structures(question)")
             conn.commit()
 
     def store(self, structure: CognitiveStructure) -> str:
@@ -116,34 +107,59 @@ class CognitiveMemory:
         limit: int = 5,
         min_confidence: float = 0.0,
     ) -> list[CognitiveStructure]:
-        """Simple keyword / substring search over concept and question.
-
-        This is intentionally lightweight for the MVP. A production system
-        would add embeddings / semantic search.
-        """
+        """Legacy keyword search retained for deterministic compatibility."""
         q = f"%{query.lower()}%"
         with self._connect() as conn:
             rows = conn.execute(
                 """
                 SELECT raw_json FROM cognitive_structures
                 WHERE (LOWER(concept) LIKE ? OR LOWER(question) LIKE ?)
-                  AND confidence >= ?
-                  AND reusable = 1
-                ORDER BY confidence DESC, timestamp DESC
-                LIMIT ?
+                  AND confidence >= ? AND reusable = 1
+                ORDER BY confidence DESC, timestamp DESC LIMIT ?
                 """,
                 (q, q, min_confidence, limit),
             ).fetchall()
         return [CognitiveStructure.from_dict(json.loads(r["raw_json"])) for r in rows]
 
-    def list_all(self, limit: int = 50) -> list[CognitiveStructure]:
+    def semantic_search(
+        self,
+        query: str,
+        limit: int = 5,
+        min_confidence: float = 0.0,
+    ) -> list[tuple[CognitiveStructure, float]]:
+        """Return ranked semantic candidates as ``(structure, score)``.
+
+        The matcher is a lightweight local approximation, not a learned
+        embedding model. Ranking is performed after SQLite filtering so the
+        existing persistence model remains unchanged.
+        """
         with self._connect() as conn:
             rows = conn.execute(
                 """
                 SELECT raw_json FROM cognitive_structures
-                ORDER BY timestamp DESC
-                LIMIT ?
+                WHERE confidence >= ? AND reusable = 1
+                ORDER BY confidence DESC, timestamp DESC
                 """,
+                (min_confidence,),
+            ).fetchall()
+
+        structures = [CognitiveStructure.from_dict(json.loads(r["raw_json"])) for r in rows]
+        candidates = [
+            (s.id, f"{s.concept}. {s.question}. {' '.join(s.tags)}")
+            for s in structures
+        ]
+        ranked = self.semantic_matcher.rank(query, candidates)
+        by_id = {s.id: s for s in structures}
+        return [
+            (by_id[identifier], score)
+            for identifier, score in ranked[:limit]
+            if self.semantic_matcher.is_relevant(score)
+        ]
+
+    def list_all(self, limit: int = 50) -> list[CognitiveStructure]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT raw_json FROM cognitive_structures ORDER BY timestamp DESC LIMIT ?",
                 (limit,),
             ).fetchall()
         return [CognitiveStructure.from_dict(json.loads(r["raw_json"])) for r in rows]
