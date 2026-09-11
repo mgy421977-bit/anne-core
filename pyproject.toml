@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "anne-core"
-version = "0.1.0"
-description = "ANNE Core — Open Cognitive Architecture. Executable research prototype for heterogeneous AI coordination, cognitive evaluation, and persistent cognitive memory."
+version = "0.2.0"
+description = "ANNE Core — Open Cognitive Architecture with local private knowledge and distributed knowledge primitives."
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
     {name = "Mustafa Gökhan Yılmaz", email = "mgy421977@gmail.com"}
 ]
-keywords = ["cognitive-architecture", "ai-orchestration", "heterogeneous-ai", "cognitive-memory", "research-prototype"]
+keywords = ["cognitive-architecture", "ai-orchestration", "cognitive-memory", "distributed-knowledge", "privacy-by-design"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -24,6 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "click>=8.1.0",
+    "cryptography>=43.0.0",
 ]
 
 [project.optional-dependencies]
@@ -35,7 +36,7 @@ openai = [
     "openai>=1.0.0",
 ]
 xai = [
-    "openai>=1.0.0",  # xAI uses OpenAI-compatible API
+    "openai>=1.0.0",
 ]
 
 [project.scripts]
