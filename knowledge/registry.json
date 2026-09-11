@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "network": "ANNE",
+  "repository": "https://github.com/mgy421977-bit/anne-core",
+  "policy": {
+    "read_only_bootstrap": true,
+    "private_data_upload": false,
+    "remote_code_execution": false,
+    "p2p_transport": false
+  },
+  "knowledge": []
+}
