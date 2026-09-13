@@ -7,6 +7,20 @@
 
 ANNE Core is an executable research prototype for cognitive orchestration, evaluated persistent memory, bounded agency, and now local-first distributed-knowledge primitives.
 
+## Research Network
+
+**ANNE — AGI-Oriented Open Cognitive Architecture**
+
+ANNE Core is an **executable research prototype**: local-first, privacy-aware knowledge layer, with a future P2P architecture treated as a research hypothesis only. It does **not** claim that a global ANNE knowledge network already exists.
+
+| Resource | URL |
+|----------|-----|
+| Primary ANNE repository | https://github.com/mgy421977-bit/anne-ai |
+| Vitavolt Research | https://vitavoltglobal.com/research/ |
+| ANNE canonical page | https://vitavoltglobal.com/anne.html |
+| ANNE research overview | https://vitavoltglobal.com/research/anne-ai.html |
+| Research publication map | https://vitavoltglobal.com/research/publications.html |
+
 ## v0.2.0: ANNE Knowledge Layer
 
 The new `anne_core.knowledge` package establishes the first implementation boundary for the next ANNE concept:
