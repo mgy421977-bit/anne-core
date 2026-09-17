@@ -1,5 +1,22 @@
 # ANNE Core — Open Cognitive Architecture
 
+> ## 🧩 INSTALLABLE CORE LIBRARY
+>
+> **`anne-core` is the installable core library in the ANNE research network. The canonical research platform is `anne-ai`.**
+>
+> ```text
+> anne       → FROZEN LEGACY
+> anne-ai    → CANONICAL RESEARCH PLATFORM
+> anne-core  → INSTALLABLE CORE LIBRARY
+> ```
+>
+> `anne-core` provides reusable, local-first core capabilities that can be consumed independently. Platform-level architecture, orchestration, integration work, experiments, and research milestones belong in [`anne-ai`](https://github.com/mgy421977-bit/anne-ai).
+>
+> **Canonical project map:**
+> - Platform: [`mgy421977-bit/anne-ai`](https://github.com/mgy421977-bit/anne-ai)
+> - This installable core: [`mgy421977-bit/anne-core`](https://github.com/mgy421977-bit/anne-core)
+> - Legacy/frozen line: [`mgy421977-bit/anne`](https://github.com/mgy421977-bit/anne)
+
 **Version:** 0.2.0 (Distributed Knowledge / Alpha)  
 **License:** MIT  
 **Python:** ≥ 3.11  
@@ -15,7 +32,7 @@ ANNE Core is an **executable research prototype**: local-first, privacy-aware kn
 
 | Resource | URL |
 |----------|-----|
-| Primary ANNE repository | https://github.com/mgy421977-bit/anne-ai |
+| Primary ANNE research platform | https://github.com/mgy421977-bit/anne-ai |
 | Vitavolt Research | https://vitavoltglobal.com/research/ |
 | ANNE canonical page | https://vitavoltglobal.com/anne.html |
 | ANNE research overview | https://vitavoltglobal.com/research/anne-ai.html |
