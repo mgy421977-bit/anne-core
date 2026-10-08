@@ -8,6 +8,7 @@ import click
 
 from anne_core.core import ANNECore
 from anne_core.memory.sqlite import CognitiveMemory
+from anne_core.runtime import ANNERuntime
 
 
 def _print_log(log: list[str]) -> None:
@@ -16,7 +17,7 @@ def _print_log(log: list[str]) -> None:
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="anne-core")
+@click.version_option(version="0.3.0", prog_name="anne-core")
 def main() -> None:
     """ANNE Core — Open Cognitive Architecture CLI."""
 
@@ -33,6 +34,26 @@ def ask(question: str, force_new: bool, db: str | None) -> None:
     _print_log(result.log)
     click.echo("")
     click.echo(result.response)
+
+
+
+@main.command()
+def runtime() -> None:
+    """Inspect the current ANNE adaptive runtime environment."""
+    status = ANNERuntime().bootstrap()
+    click.echo("ANNE CORE — RUNTIME")
+    click.echo(f"Operational: {status.operational}")
+    click.echo(f"OS: {status.environment.os_name} {status.environment.os_release}")
+    click.echo(f"Architecture: {status.environment.architecture}")
+    click.echo(f"CPU cores: {status.environment.cpu_count}")
+    click.echo(f"Memory bytes: {status.environment.memory_bytes}")
+    click.echo(f"Accelerators: {', '.join(status.environment.accelerators) or 'none'}")
+    click.echo(f"Network: {status.environment.network_available}")
+    click.echo("Adapters:")
+    for adapter in status.adapters:
+        click.echo(f"  - {adapter.name}: {adapter.status}")
+    for warning in status.diagnostics.warnings:
+        click.echo(f"Warning: {warning}")
 
 
 @main.command()

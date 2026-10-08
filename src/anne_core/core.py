@@ -11,6 +11,7 @@ from anne_core.memory.models import CognitiveStructure
 from anne_core.memory.sqlite import CognitiveMemory
 from anne_core.mitos.engine import MITOSEngine, MITOSResult
 from anne_core.safety.agency_gate import AgencyGate
+from anne_core.runtime.runtime import ANNERuntime, RuntimeStatus
 
 
 @dataclass
@@ -23,6 +24,7 @@ class LoopResult:
     reused: bool
     mitos: MITOSResult | None
     log: list[str]
+    runtime: RuntimeStatus
 
 
 class ANNECore:
@@ -35,12 +37,14 @@ class ANNECore:
         evaluator: CognitiveEvaluator | None = None,
         executive: ExecutiveANNE | None = None,
         agency_gate: AgencyGate | None = None,
+        runtime: ANNERuntime | None = None,
     ) -> None:
         self.memory = memory or CognitiveMemory()
         self.mitos = mitos or MITOSEngine()
         self.evaluator = evaluator or CognitiveEvaluator()
         self.executive = executive or ExecutiveANNE()
         self.agency_gate = agency_gate or AgencyGate()
+        self.runtime = runtime or ANNERuntime()
 
     def ask(self, question: str, force_new: bool = False) -> LoopResult:
         """Run the full cognitive loop for a user question.
@@ -49,7 +53,19 @@ class ANNECore:
         structure exists and force_new is False.
         """
         log: list[str] = []
+        runtime_status = self.runtime.status()
         log.append("ANNE CORE")
+        log.append(
+            f"[RUNTIME] {runtime_status.environment.os_name} "
+            f"{runtime_status.environment.architecture} "
+            f"CPU={runtime_status.environment.cpu_count}"
+        )
+        log.append(
+            f"[RUNTIME] adapters={len(runtime_status.adapters)} "
+            f"operational={runtime_status.operational}"
+        )
+        for warning in runtime_status.diagnostics.warnings:
+            log.append(f"[RUNTIME] warning: {warning}")
         log.append(f"Question: {question}")
 
         prior: CognitiveStructure | None = None
@@ -118,6 +134,7 @@ class ANNECore:
             reused=reused,
             mitos=mitos_result,
             log=log,
+            runtime=runtime_status,
         )
 
     def memory_summary(self) -> str:

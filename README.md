@@ -17,7 +17,7 @@
 > - This installable core: [`mgy421977-bit/anne-core`](https://github.com/mgy421977-bit/anne-core)
 > - Legacy/frozen line: [`mgy421977-bit/anne`](https://github.com/mgy421977-bit/anne)
 
-**Version:** 0.2.0 (Distributed Knowledge / Alpha)  
+**Version:** 0.3.0 (Adaptive Runtime / Distributed Knowledge / Alpha)  
 **License:** MIT  
 **Python:** ≥ 3.11  
 **Repository:** https://github.com/mgy421977-bit/anne-core  
@@ -164,3 +164,32 @@ The v0.2 test suite covers stable local identity, authenticated private-vault ro
 ANNE Core is a research prototype. Energy reduction, hallucination reduction, self-improvement, distributed learning effects, and cognitive superiority remain hypotheses requiring controlled experiments.
 
 The v0.2 distributed-knowledge layer is likewise a prototype boundary: it demonstrates the data model and privacy mechanism, not a deployed global knowledge network or a financial Green Money system.
+
+
+## v0.3.0: Adaptive Runtime Layer
+
+ANNE Core now separates **cognitive intelligence** from the environment in which it executes.
+
+```text
+ANNE AI
+  └─ cognitive architecture
+       └─ ANNE Core
+            ├─ Cognitive loop
+            ├─ Persistent memory
+            ├─ Agency Gate
+            ├─ Knowledge Layer
+            └─ Adaptive Runtime
+                 ├─ Environment discovery
+                 ├─ Hardware capability normalization
+                 ├─ Trusted adapter selection
+                 ├─ Self-diagnostics
+                 └─ Runtime recovery
+```
+
+The runtime can discover CPU, memory, operating-system, architecture, network, and selected accelerator interfaces and choose trusted built-in adapters.
+
+It does **not** silently download drivers, execute untrusted code, or install software. Missing external capabilities are represented as an explicit adapter plan requiring authorization.
+
+The research direction is to make ANNE increasingly portable across hardware and operating environments by keeping cognitive logic above platform-specific details.
+
+This is a foundation for a future **self-adaptive AI runtime**, not a claim of universal hardware independence.
