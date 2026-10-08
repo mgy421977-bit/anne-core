@@ -16,7 +16,7 @@ def _print_log(log: list[str]) -> None:
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="anne-core")
+@click.version_option(version="0.3.0", prog_name="anne-core")
 def main() -> None:
     """ANNE Core — Open Cognitive Architecture CLI."""
 
