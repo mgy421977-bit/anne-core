@@ -77,6 +77,14 @@ Algorithm:
 - Required for any external-world action (including GitHub installer).
 - Code: `src/anne_core/safety/agency_gate.py`
 
+### Adaptive Runtime
+- Environment discovery: `src/anne_core/runtime/environment.py`
+- Trusted adapter selection: `src/anne_core/runtime/adapters.py`
+- Runtime bootstrap and recovery: `src/anne_core/runtime/runtime.py`
+- Health diagnostics: `src/anne_core/runtime/diagnostics.py`
+- The runtime is deliberately above hardware-specific implementation details.
+- Driver/software installation is never implicit; external adapters require explicit authorization.
+
 ### Telemetry
 - Optional, opt-out, fail-open, anonymous.
 - Never a dependency of the cognitive loop.
@@ -96,6 +104,7 @@ Algorithm:
 - No claim of demonstrated energy superiority.
 - No claim of guaranteed hallucination reduction.
 - “Fractal cognition” means re-entrant graph exploration, not biological equivalence.
+- Adaptive runtime means environment discovery and trusted adapter selection, not universal hardware independence.
 - Hypotheses are testable and falsifiable; they are not results.
 
 ---
