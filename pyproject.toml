@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "anne-core"
-version = "0.2.0"
-description = "ANNE Core — Open Cognitive Architecture with local private knowledge and distributed knowledge primitives."
+version = "0.3.0"
+description = "ANNE Core — Open Cognitive Architecture with adaptive runtime, local knowledge, and distributed knowledge primitives."
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
